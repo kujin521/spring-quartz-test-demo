@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
+
+    <!-- The context-param is used by spring's ContextLoaderListener -->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:spring-quartz.xml</param-value>
+    </context-param>
+
+    <!-- The spring's application-scoped ApplicationContext initializer when server startup -->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+
+    <!-- The spring's servlet-scoped WebApplicationContext initializer -->
+    <!-- <servlet>
+        <servlet-name>spring-dispatch-servlet</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            The special config for this servlet
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:spring-web.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>spring-dispatch-servlet</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+	  <servlet-name>druidStatView</servlet-name>
+	  <servlet-class>com.alibaba.druid.support.http.StatViewServlet</servlet-class>
+	  <init-param>
+	   <param-name>loginUsername</param-name>
+	   <param-value>ykse-druid</param-value>
+	  </init-param>
+	  <init-param>
+	   <param-name>loginPassword</param-name>
+	   <param-value>ykse@2016druid</param-value>
+	  </init-param>
+	</servlet>
+	<servlet-mapping>
+	  <servlet-name>druidStatView</servlet-name>
+	  <url-pattern>/druid/*</url-pattern>
+	</servlet-mapping> -->
+
+</web-app>

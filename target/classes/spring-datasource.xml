@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+    	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    	http://www.springframework.org/schema/tx    http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+    	http://www.ykse.com.cn/schema/dbridge 		http://www.ykse.com.cn/schema/dbridge/dbridge.xsd">
+	
+	 <!-- 真实库数据源 -->
+	 <bean name="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <!-- 初始化连接大小 -->
+        <property name="initialSize" value="${jdbc.pool.initialSize}" />
+        <!-- 连接池最大使用连接数量 -->
+        <property name="maxActive" value="${jdbc.pool.maxActive}" />
+        <!-- 连接池最小空闲 -->
+        <property name="minIdle" value="${jdbc.pool.minIdle}" />
+        <!-- 获取连接最大等待时间 -->
+        <property name="maxWait" value="${jdbc.pool.maxWait}" />
+        <!--是否缓存preparedStatement，也就是PSCache。-->
+        <!--PSCache对支持游标的数据库性能提升巨大，比如说oracle。-->
+        <!--在mysql5.5以下的版本中没有PSCache功能，建议关闭掉。-->
+        <!--5.5及以上版本有PSCache，建议开启。-->
+        <property name="poolPreparedStatements" value="true" />
+        <!--要启用PSCache，必须配置大于0，当大于0时，-->
+        <!--poolPreparedStatements自动触发修改为true。-->
+        <!--在Druid中，不会存在Oracle下PSCache占用内存过多的问题，-->
+        <!--可以把这个数值配置大一些，比如说100-->
+        <property name="maxPoolPreparedStatementPerConnectionSize" value="${jdbc.pool.maxPoolPreparedStatementPerConnectionSize}" />
+        <!--用来检测连接是否有效的sql，要求是一个查询语句。-->
+        <!--如果validationQuery为null，testOnBorrow、testOnReturn、-->
+        <!--testWhileIdle都不会其作用-->
+        <property name="validationQuery" value="SELECT 'x'" />
+        <!--申请连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能-->
+        <property name="testOnBorrow" value="false" />
+        <!--归还连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能-->
+        <property name="testOnReturn" value="false" />
+        <!--建议配置为true，不影响性能，并且保证安全性。-->
+        <!--申请连接的时候检测，如果空闲时间大于-->
+        <!--timeBetweenEvictionRunsMillis，-->
+        <!--执行validationQuery检测连接是否有效-->
+        <property name="testWhileIdle" value="true" />
+
+        <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+        <property name="timeBetweenEvictionRunsMillis" value="${jdbc.pool.timeBetweenEvictionRunsMillis}" />
+        <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+        <property name="minEvictableIdleTimeMillis" value="${jdbc.pool.minEvictableIdleTimeMillis}" />
+
+        <!-- 对于长时间不使用的连接强制关闭 -->
+        <property name="removeAbandoned" value="true" />
+        <!-- 超过30分钟开始关闭空闲连接 -->
+        <property name="removeAbandonedTimeout" value="${jdbc.pool.removeAbandonedTimeout}" />
+        <!-- 关闭abanded连接时输出错误日志 -->
+        <property name="logAbandoned" value="true" />
+        <!--定期把监控数据输出到日志中-->
+        <property name="timeBetweenLogStatsMillis" value="${jdbc.pool.timeBetweenLogStatsMillis}" />
+        
+        <!-- 开启Druid的监控统计功能 -->
+        <property name="filters" value="config,slf4j" />
+        <property name="connectProperties" value="config.file=${datasource.connectProperties.url}"/>
+    </bean>
+	
+</beans>

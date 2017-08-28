@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-4.0.xsd 
+            http://www.springframework.org/schema/context 
+            http://www.springframework.org/schema/context/spring-context.xsd">
+	<context:property-placeholder
+		location="classpath:prop.properties"
+		ignore-unresolvable="true" />
+		
+	<context:component-scan base-package="spring.quartz.test.demo" />
+	<!-- 数据源 -->
+	<import resource="classpath:spring-datasource.xml"/>
+	
+	<!-- spring-quartz 调度任务 -->
+	<bean name="quartzScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="configLocation" value="classpath:quartz.properties"/>
+		<property name="dataSource" ref="dataSource" />
+		<!-- 事物 -->
+		<property name="transactionManager">
+			<bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+				<property name="dataSource" ref="dataSource" />
+			</bean>
+		</property>
+		<!-- unique 任务名称 ,保存到数据库-->
+		<property name="schedulerName" value="uniqueScheduleName" />
+		
+		<!-- 这是一个集群更新触发器设置，集群中部署新应用的时候，更新触发器 -->
+		<property name="overwriteExistingJobs" value="true"/>
+		<!-- 集群标识 -->
+		<property name="applicationContextSchedulerContextKey" value="DEMO_APP" />
+		
+		<!-- jog工厂 -->
+		<property name="jobFactory">
+			<bean class="spring.quartz.test.demo.AutowiringSpringBeanJobFactory"/>
+		</property>
+		
+		<!-- jog触发器 -->
+		<property name="triggers">
+			<list>
+				<ref bean="demoTrigger"/>
+				<ref bean="demoTrigger2"/>
+			</list>
+		</property>
+		
+		<!-- 线程池 -->
+		<property name="taskExecutor">
+			<bean class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+				<property name="corePoolSize" value="5"/>
+				<property name="maxPoolSize" value="10"/>
+				<property name="queueCapacity" value="20"/>
+			</bean>
+		</property>
+		
+	</bean>
+	
+	<!-- 配置job详情 -->
+	<bean name="demoJobDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass" value="spring.quartz.test.demo.DemoJobDetail" />
+		<property name="durability" value="true"/>
+		<property name="requestsRecovery" value="false" />
+	</bean>
+	
+	<!-- 配置触发时间 -->
+	<bean name="demoTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="demoJobDetail"/>
+		<property name="cronExpression" value="0/5 * * * * ?"/>
+	</bean>
+	
+	<!-- 配置触发时间 -->
+	<bean name="demoTrigger2" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="demoJobDetail"/>
+		<property name="cronExpression" value="0/10 * * * * ?"/>
+	</bean>
+</beans>
