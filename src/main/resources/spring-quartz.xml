@@ -27,21 +27,24 @@
 		<!-- unique 任务名称 ,保存到数据库-->
 		<property name="schedulerName" value="uniqueScheduleName" />
 		
-		<!-- 这是一个集群更新触发器设置，集群中部署新应用的时候，更新触发器 -->
+		<!-- 这是一个集群更新触发器设置，集群中部署新应用的时候，更新触发器 ，更新已存在的job，就不用每次修改job后删除qrtz_job_details表的记录-->
 		<property name="overwriteExistingJobs" value="true"/>
-		<!-- 集群标识 -->
-		<property name="applicationContextSchedulerContextKey" value="DEMO_APP" />
+		<!-- 增加这个属性，Spring会帮我们自动注入applicationContext -->
+		<property name="applicationContextSchedulerContextKey" value="applicationContext" />
+		<!-- 增加这属性，QuartzSchedule 会延迟启动，应用启动完成后，任务在启动 -->
+		<property name="startupDelay" value="4" />
 		
-		<!-- jog工厂 -->
+		<!-- job工厂 ,用于对生成job的时候,实现对job内部bean的自动注入-->
 		<property name="jobFactory">
-			<bean class="spring.quartz.test.demo.AutowiringSpringBeanJobFactory"/>
+			<!-- <bean class="spring.quartz.test.demo.AutowiredInternalBeanJobFactory"/> -->
+			<bean class="spring.quartz.test.demo.AutowiredInternalBeanJobFactory2"/>
 		</property>
 		
-		<!-- jog触发器 -->
+		<!-- job触发器 -->
 		<property name="triggers">
 			<list>
 				<ref bean="demoTrigger"/>
-				<ref bean="demoTrigger2"/>
+				<!-- <ref bean="demoTrigger2"/> -->
 			</list>
 		</property>
 		
@@ -59,10 +62,21 @@
 	<!-- 配置job详情 -->
 	<bean name="demoJobDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="spring.quartz.test.demo.DemoJobDetail" />
+		<!-- durability属性为true 则表示job是持久的,删除触发器的时候不被删除 -->
 		<property name="durability" value="true"/>
+		<!--requestsRecovery属性为true，则当Quartz服务被中止后，再次启动任务时会尝试恢复执行之前未完成的所有任务-->
 		<property name="requestsRecovery" value="false" />
+		<!-- shouldRecover属性为true，则服务被终止后，再次启动服务时会尝试恢复执行之前未完成的所有任务 -->
+		<property name="shouldRecover" value="true" />
+		
+		<!-- 配置job的内部属性，注意无法引用spring管理的bean-->
+		<property name="jobDataAsMap">  
+        	<map>  
+            	<entry key="userName" value="123" />
+        	</map>  
+    	</property>  
+		
 	</bean>
-	
 	<!-- 配置触发时间 -->
 	<bean name="demoTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail" ref="demoJobDetail"/>
@@ -70,8 +84,8 @@
 	</bean>
 	
 	<!-- 配置触发时间 -->
-	<bean name="demoTrigger2" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+	<!-- <bean name="demoTrigger2" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail" ref="demoJobDetail"/>
 		<property name="cronExpression" value="0/10 * * * * ?"/>
-	</bean>
+	</bean> -->
 </beans>
