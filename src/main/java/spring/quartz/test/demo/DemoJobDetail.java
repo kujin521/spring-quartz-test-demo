@@ -17,6 +17,7 @@ public class DemoJobDetail extends QuartzJobBean{
     
     //可以通过配置文件的中JobDetailFactoryBean里面的jobDataAsMap注入，但是需要提供set方法
     private String userName;
+    private Long sleep;
 
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {
@@ -26,5 +27,9 @@ public class DemoJobDetail extends QuartzJobBean{
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public void setSleep(Long sleep) {
+        this.sleep = sleep;
     }
 }
